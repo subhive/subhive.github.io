@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Prescribed Credential Grade Export
+// @name         Prescribed Credentials Progress Report
 // @namespace    https://subhive.github.io
 // @version      1.5
-// @description  Export a .csv of student grades for the listed prescribed credentials.
+// @description  Export a .csv report of student grades for the listed prescribed credentials.
 // @author       darren@subtext.com.au
 // @include      https://*.instructure.com/courses/*/pages/*
 // @grant        none
