@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Prescribed Credentials Progress Report
 // @namespace    https://subhive.github.io
-// @version      1.5
+// @version      1.6
 // @description  Export a .csv report of student grades for the listed prescribed credentials.
 // @author       darren@subtext.com.au
 // @include      https://*.instructure.com/courses/*/pages/*
@@ -70,7 +70,7 @@
         getSubmissions(subUrl)
           .then(function (userSubmissions) {
             console.log(userSubmissions);
-            var data = [["Student ID", "Student name", "Credential", "Current grade", "Workflow state", "Last submission", "Due date", "Instructor", "Attempts graded"]];
+            var data = [["Student ID", "Student name", "Credential", "Current grade", "Workflow state", "First submission", "Last submission", "Due date", "Instructor", "Attempts graded"]];
             var userIds = [];
             userSubmissions.forEach(function (userSubmission) {
               if (userSubmission.submissions[0].user.sis_user_id == null || userIds.indexOf(userSubmission.user_id) !== -1) {
@@ -92,17 +92,28 @@
                     }
                     var submissionHistory = submission.submission_history;
                     var attemptsGraded = 0;
+                    var firstSubmitted = null;
                     if (Array.isArray(submissionHistory) && submissionHistory.length) {
                       submissionHistory.forEach(function (attempt) {
                         if (attempt.workflow_state === 'graded') {
                           attemptsGraded++;
                         }
+
+                        if (attempt.submitted_at) {
+                          if (firstSubmitted === null) {
+                            firstSubmitted = attempt.submitted_at;
+                          }
+                          else if (attempt.submitted_at < firstSubmitted) {
+                            attempt.submitted_at < firstSubmitted;
+                          }
+                        }
                       });
                     }
                     const grade = submission.excused ? 'excused' : submission.grade;
-                    const submitted = submission.submitted_at != null ? submission.submitted_at.replace(timeExp, ' ') : null;
+                    firstSubmitted = firstSubmitted != null ? firstSubmitted.replace(timeExp, ' ') : null;
+                    const lastSubmitted = submission.submitted_at != null ? submission.submitted_at.replace(timeExp, ' ') : null;
                     const workflowState = submission.workflow_state === 'unsubmitted' ? 'not submitted' : submission.workflow_state;
-                    data.push(['"' + userId + '"', '"' + userName + '"', '"' + assignment.name + '"', '"' + grade + '"', '"' + workflowState + '"', '"' + submitted + '"', '"' + assignment.due + '"', '"' + assignment.instructor + '"', '"' + attemptsGraded + '"']);
+                    data.push(['"' + userId + '"', '"' + userName + '"', '"' + assignment.name + '"', '"' + grade + '"', '"' + workflowState + '"', '"' + firstSubmitted + '"', '"' + lastSubmitted + '"', '"' + assignment.due + '"', '"' + assignment.instructor + '"', '"' + attemptsGraded + '"']);
                     break;
                   }
                 }
