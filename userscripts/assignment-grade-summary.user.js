@@ -61,7 +61,7 @@
 
     // display_report will pop up a dialog with the file counts
     function display_report_grades(grades_report_text){
-        $('#sidebar_content > div').append('<div id="GradeSummary">' + grades_report_text + '</div>');
+        $('#sidebar_content').append('<div id="GradeSummary">' + grades_report_text + '</div>');
         $('#GradeSummary').css("padding-top","25px");
     }
 
