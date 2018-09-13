@@ -16,7 +16,7 @@
   var exportBtn;
   var exportIcon;
   var exportBtnText;
-  const btnText = ' Export Progress Data';
+  const btnText = ' Export Progress Report';
   const waitText = ' Please wait...';
   const iconClass = 'icon-stats';
   const waitClass = 'icon-instructure';
