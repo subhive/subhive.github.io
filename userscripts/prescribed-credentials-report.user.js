@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         Prescribed Credentials Progress Report
 // @namespace    https://subhive.github.io
-// @version      1.7
+// @version      1.8
 // @description  Export a .csv report of student grades for the listed prescribed credentials.
 // @author       darren@subtext.com.au
+// @include      https://*.instructure.com/courses/*
 // @include      https://*.instructure.com/courses/*/pages/*
 // @require     http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
 // @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
@@ -42,7 +43,7 @@
     getCredentialIds();
 
     if (credIds.length) {
-      reportBtn = $('<button class="btn report-button" style="margin-right:16px">' + reportText + '</button>');
+      reportBtn = $('<button class="btn report-button">' + reportText + '</button>');
       reportBtn.click(showDiv);
       reportIcon = $('<i class="' + iconClass + '">');
       reportBtn.prepend(reportIcon);
@@ -64,7 +65,7 @@
       startPickerInput = $('<input type="text" id="startpicker" style="width:80px;vertical-align:baseline;margin-right:5px">');
       endPickerInput = $('<input type="text" id="endpicker" style="width:80px;vertical-align:baseline;margin-right:5px">');
 
-      reportDiv = $('<div style="display:none;position:absolute;right:267px;top:38px;z-index:99">');
+      reportDiv = $('<div style="display:none;position:absolute;right:0;top:38px;z-index:99">');
       var styledDiv = $('<div style="border:1px solid #C7CDD1;border-radius:3px;padding:10px;background-color:#fff;">');
 
       var exportDiv = $('<div style="border-bottom:1px solid #C7CDD1;padding-bottom:10px;margin-bottom:10px;">');
@@ -86,17 +87,22 @@
       reportDiv.append(styledDiv);
 
       errorDiv = $('<div class="error-text" style="font-size:11px;">');
-      
-      var publishButton = $('.publish-button');
-      if (publishButton.length > 0) {
+
+      var headerBar = $('.header-bar-right');
+      if (headerBar.length > 0) {
+        var outerWidth = headerBar.outerWidth();
+        if (outerWidth > 12) {
+          reportDiv.css('right', (outerWidth + 4) + 'px');
+          reportBtn.css('margin-right', '12px')
+        }
         $('.header-bar').css('position', 'relative');
-        publishButton.before(reportBtn);
-        publishButton.before(reportDiv);
+        headerBar.prepend(reportBtn);
+        headerBar.prepend(reportDiv);
 
         startPickerInput.datepicker({ dateFormat: 'dd/mm/yy' });
         endPickerInput.datepicker({ dateFormat: 'dd/mm/yy' });
       }
-      
+
       var style = document.createElement('style');
       document.head.appendChild(style);
       var styleSheet = style.sheet;
@@ -175,7 +181,8 @@
 
             if (userSubmissions) {
               userSubmissions.forEach(function (userSubmission) {
-                if (userSubmission.submissions.length === 0 || userSubmission.submissions[0].user.sis_user_id == null || userIds.indexOf(userSubmission.user_id) !== -1) {
+                //if (userSubmission.submissions.length === 0 || userSubmission.submissions[0].user.sis_user_id == null || userIds.indexOf(userSubmission.user_id) !== -1) {
+                if (userSubmission.submissions.length === 0 || userIds.indexOf(userSubmission.user_id) !== -1) {
                   return;
                 } else {
                   userIds.push(userSubmission.user_id);
@@ -194,7 +201,7 @@
 
                       if (userName == null) {
                         userName = submission.user.short_name;
-                        userId = submission.user.sis_user_id;
+                        userId = submission.user.sis_user_id != null ? submission.user.sis_user_id : '';
                       }
                       var submissionHistory = submission.submission_history;
                       var attemptsGraded = 0;
@@ -241,7 +248,7 @@
             var encodedUri = encodeURI(csvContent);
             var link = document.createElement('a');
             link.href = encodedUri;
-            link.download = 'grade_complete.csv';
+            link.download = complete ? 'grade_report.csv' : 'progress_report.csv';
             link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
