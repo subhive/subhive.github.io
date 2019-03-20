@@ -1,11 +1,17 @@
 // ==UserScript==
 // @name         Prescribed Credentials Progress Report
 // @namespace    https://subhive.github.io
-// @version      1.6
+// @version      1.8
 // @description  Export a .csv report of student grades for the listed prescribed credentials.
 // @author       darren@subtext.com.au
+// @include      https://*.instructure.com/courses/*
 // @include      https://*.instructure.com/courses/*/pages/*
+// @require     http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
+// @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @grant        none
+// ==/UserScript==
+
+
 // ==/UserScript==
 
 (function () {
@@ -13,10 +19,21 @@
 
   var courseId = getCourseId();
   var credIds = [];
+  var errorDiv;
+  var reportDiv;
+  var reportBtn;
+  var reportIcon;
   var exportBtn;
-  var exportIcon;
   var exportBtnText;
-  const btnText = ' Export Progress Report';
+  var exportIcon;
+  var completeBtn;
+  var completeBtnText;
+  var completeIcon;
+  var startPickerInput;
+  var endPickerInput;
+  const reportText = ' Reports';
+  const exportText = ' Progress Report';
+  const completeText = ' Grade Report';
   const waitText = ' Please wait...';
   const iconClass = 'icon-stats';
   const waitClass = 'icon-instructure';
@@ -26,19 +43,66 @@
     getCredentialIds();
 
     if (credIds.length) {
-      exportBtn = document.createElement('button');
-      exportBtn.className = 'btn export-button';
-      exportBtn.addEventListener('click', createCsv, false);
-      exportIcon = document.createElement('i');
-      exportIcon.className = iconClass;
-      exportBtnText = document.createTextNode(btnText);
-      exportBtn.appendChild(exportIcon);
-      exportBtn.appendChild(exportBtnText);
-      var publishButtons = document.getElementsByClassName('publish-button');
-      if (publishButtons !== null) {
-        var publishButton = publishButtons[0];
-        publishButton.parentNode.insertBefore(exportBtn, publishButton.nextSibling);
+      reportBtn = $('<button class="btn report-button">' + reportText + '</button>');
+      reportBtn.click(showDiv);
+      reportIcon = $('<i class="' + iconClass + '">');
+      reportBtn.prepend(reportIcon);
+
+      exportBtn = $('<button class="btn export-button">');
+      exportBtnText = $('<span>' + exportText + '</span>');
+      exportBtn.click(createCsv);
+      exportIcon = reportIcon.clone();
+      exportBtn.append(exportIcon);
+      exportBtn.append(exportBtnText);
+
+      completeBtn = $('<button class="btn complete-button">');
+      completeBtnText = $('<span>' + completeText + '</span>');
+      completeBtn.click(createCsv);
+      completeIcon = reportIcon.clone();
+      completeBtn.append(completeIcon);
+      completeBtn.append(completeBtnText);
+
+      startPickerInput = $('<input type="text" id="startpicker" style="width:80px;vertical-align:baseline;margin-right:5px">');
+      endPickerInput = $('<input type="text" id="endpicker" style="width:80px;vertical-align:baseline;margin-right:5px">');
+
+      reportDiv = $('<div style="display:none;position:absolute;right:0;top:38px;z-index:99">');
+      var styledDiv = $('<div style="border:1px solid #C7CDD1;border-radius:3px;padding:10px;background-color:#fff;">');
+
+      var exportDiv = $('<div style="border-bottom:1px solid #C7CDD1;padding-bottom:10px;margin-bottom:10px;">');
+      exportDiv.append(exportBtn);
+
+      var completeDiv = $('<div>');
+      var labelDiv = $('<div>');
+      var startLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">Start</div>');
+      var endLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">End</div>');
+      labelDiv.append(startLabel);
+      labelDiv.append(endLabel);
+      completeDiv.append(labelDiv);
+      completeDiv.append(startPickerInput);
+      completeDiv.append(endPickerInput);
+      completeDiv.append(completeBtn);
+
+      styledDiv.append(exportDiv);
+      styledDiv.append(completeDiv);
+      reportDiv.append(styledDiv);
+
+      errorDiv = $('<div class="error-text" style="font-size:11px;">');
+
+      var headerBar = $('.header-bar-right');
+      if (headerBar.length > 0) {
+        var outerWidth = headerBar.outerWidth();
+        if (outerWidth > 12) {
+          reportDiv.css('right', (outerWidth + 4) + 'px');
+          reportBtn.css('margin-right', '12px')
+        }
+        $('.header-bar').css('position', 'relative');
+        headerBar.prepend(reportBtn);
+        headerBar.prepend(reportDiv);
+
+        startPickerInput.datepicker({ dateFormat: 'dd/mm/yy' });
+        endPickerInput.datepicker({ dateFormat: 'dd/mm/yy' });
       }
+
       var style = document.createElement('style');
       document.head.appendChild(style);
       var styleSheet = style.sheet;
@@ -48,15 +112,51 @@
     }
   }
 
-  function createCsv() {
-    exportBtnText.nodeValue = waitText;
-    exportIcon.className = waitClass;
+  function createCsv(e) {
+    var complete = $(e.delegateTarget).hasClass('complete-button');
+
+    var start = null;
+    var end = null;
+
+    if (complete) {
+      var startParts = startPickerInput.val().split("/");
+      var endParts = endPickerInput.val().split("/");
+
+      if (startParts.length !== 3 || endParts.length !== 3) {
+        showError('Invalid dates');
+        return;
+      }
+
+      var start = new Date(+startParts[2], +startParts[1] - 1, +startParts[0]);
+      var end = new Date(+endParts[2], +endParts[1] - 1, +endParts[0]);
+
+      if (!isValidDate(start) || !isValidDate(start)) {
+        showError('Invalid dates');
+        return;
+      }
+
+      if (start > end) {
+        showError('End date must be later than start date');
+        return;
+      }
+    }
+
+    hideError();
+
+    var btnText = complete ? completeBtnText : exportBtnText;
+    var icon = complete ? completeIcon : exportIcon;
+    var btnTextOld = btnText.text();
+    btnText.text(waitText);
+    icon.removeClass();
+    icon.addClass(waitClass);
+
     const url = baseUrl + '/api/v1/courses/' + courseId + '/front_page';
     const timeExp = /[T|Z]/g;
     getAssignmentIds(url)
       .then(function (allIds) {
         var assignments = [];
-        var query = '';
+
+        var query = complete ? '&workflow_state=graded&submitted_since=' + start.toISOString() : '';
 
         credIds.forEach(function (cred) {
           var prop = getProp(allIds, cred.id);
@@ -69,56 +169,75 @@
         const subUrl = baseUrl + '/api/v1/courses/' + courseId + '/students/submissions?per_page=999&grouped=1&include[]=user&include[]=submission_history&student_ids[]=all' + query;
         getSubmissions(subUrl)
           .then(function (userSubmissions) {
-            console.log(userSubmissions);
-            var data = [["Student ID", "Student name", "Credential", "Current grade", "Workflow state", "First submission", "Last submission", "Due date", "Instructor", "Attempts graded"]];
+            var data = [];
+            if (complete) {
+              data.push(["Student ID", "Student name", "Credential", "First submission", "Last submission", "Graded at", "Attempts graded"]);
+            }
+            else {
+              data.push(["Student ID", "Student name", "Credential", "Current grade", "Workflow state", "First submission", "Last submission", "Due date", "Instructor", "Attempts graded"]);
+            }
+
             var userIds = [];
-            userSubmissions.forEach(function (userSubmission) {
-              if (userSubmission.submissions[0].user.sis_user_id == null || userIds.indexOf(userSubmission.user_id) !== -1) {
-                return;
-              }
-              else {
-                userIds.push(userSubmission.user_id);
-              }
 
-              var userName, userId;
-              assignments.forEach(function (assignment) {
-                var submissions = userSubmission.submissions;
-                for (var j = 0; j < submissions.length; j++) {
-                  var submission = submissions[j];
-                  if (submission.assignment_id === assignment.id) {
-                    if (userName == null) {
-                      userName = submission.user.short_name;
-                      userId = submission.user.sis_user_id;
-                    }
-                    var submissionHistory = submission.submission_history;
-                    var attemptsGraded = 0;
-                    var firstSubmitted = null;
-                    if (Array.isArray(submissionHistory) && submissionHistory.length) {
-                      submissionHistory.forEach(function (attempt) {
-                        if (attempt.workflow_state === 'graded') {
-                          attemptsGraded++;
-                        }
-
-                        if (attempt.submitted_at) {
-                          if (firstSubmitted === null) {
-                            firstSubmitted = attempt.submitted_at;
-                          }
-                          else if (attempt.submitted_at < firstSubmitted) {
-                            attempt.submitted_at < firstSubmitted;
-                          }
-                        }
-                      });
-                    }
-                    const grade = submission.excused ? 'excused' : submission.grade;
-                    firstSubmitted = firstSubmitted != null ? firstSubmitted.replace(timeExp, ' ') : null;
-                    const lastSubmitted = submission.submitted_at != null ? submission.submitted_at.replace(timeExp, ' ') : null;
-                    const workflowState = submission.workflow_state === 'unsubmitted' ? 'not submitted' : submission.workflow_state;
-                    data.push(['"' + userId + '"', '"' + userName + '"', '"' + assignment.name + '"', '"' + grade + '"', '"' + workflowState + '"', '"' + firstSubmitted + '"', '"' + lastSubmitted + '"', '"' + assignment.due + '"', '"' + assignment.instructor + '"', '"' + attemptsGraded + '"']);
-                    break;
-                  }
+            if (userSubmissions) {
+              userSubmissions.forEach(function (userSubmission) {
+                //if (userSubmission.submissions.length === 0 || userSubmission.submissions[0].user.sis_user_id == null || userIds.indexOf(userSubmission.user_id) !== -1) {
+                if (userSubmission.submissions.length === 0 || userIds.indexOf(userSubmission.user_id) !== -1) {
+                  return;
+                } else {
+                  userIds.push(userSubmission.user_id);
                 }
+
+                var userName, userId;
+                assignments.forEach(function (assignment) {
+                  var submissions = userSubmission.submissions;
+                  for (var j = 0; j < submissions.length; j++) {
+                    var submission = submissions[j];
+                    if (submission.assignment_id === assignment.id) {
+                      var submittedAt =  new Date(submission.submitted_at);
+                      if (complete && (submission.grade !== 'complete' || submittedAt > end.toISOString())) {
+                        continue;
+                      }
+
+                      if (userName == null) {
+                        userName = submission.user.short_name;
+                        userId = submission.user.sis_user_id != null ? submission.user.sis_user_id : '';
+                      }
+                      var submissionHistory = submission.submission_history;
+                      var attemptsGraded = 0;
+                      var firstSubmitted = null;
+                      if (Array.isArray(submissionHistory) && submissionHistory.length) {
+                        submissionHistory.forEach(function (attempt) {
+                          if (attempt.workflow_state === 'graded') {
+                            attemptsGraded++;
+                          }
+
+                          if (attempt.submitted_at) {
+                            if (firstSubmitted === null) {
+                              firstSubmitted = attempt.submitted_at;
+                            } else if (attempt.submitted_at < firstSubmitted) {
+                              attempt.submitted_at < firstSubmitted;
+                            }
+                          }
+                        });
+                      }
+                      const grade = submission.excused ? 'excused' : submission.grade;
+                      firstSubmitted = firstSubmitted != null ? firstSubmitted.replace(timeExp, ' ') : null;
+                      const lastSubmitted = submission.submitted_at != null ? submission.submitted_at.replace(timeExp, ' ') : null;
+                      const workflowState = submission.workflow_state === 'unsubmitted' ? 'not submitted' : submission.workflow_state;
+
+                      if (complete) {
+                        const graded = submission.graded_at != null ? submission.graded_at.replace(timeExp, ' ') : null;
+                        data.push(['"' + userId + '"', '"' + userName + '"', '"' + assignment.name + '"', '"' + firstSubmitted + '"', '"' + lastSubmitted + '"', '"' + graded + '"', '"' + attemptsGraded + '"']);
+                      } else {
+                        data.push(['"' + userId + '"', '"' + userName + '"', '"' + assignment.name + '"', '"' + grade + '"', '"' + workflowState + '"', '"' + firstSubmitted + '"', '"' + lastSubmitted + '"', '"' + assignment.due + '"', '"' + assignment.instructor + '"', '"' + attemptsGraded + '"']);
+                      }
+                      break;
+                    }
+                  }
+                });
               });
-            });
+            }
 
             var lineArray = [];
             data.forEach(function (row, index) {
@@ -129,19 +248,41 @@
             var encodedUri = encodeURI(csvContent);
             var link = document.createElement('a');
             link.href = encodedUri;
-            link.download = 'progress_tracker.csv';
+            link.download = complete ? 'grade_report.csv' : 'progress_report.csv';
             link.style.display = 'none';
             document.body.appendChild(link);
             link.click();
-            exportBtnText.nodeValue = btnText;
-            exportIcon.className = iconClass;
+            btnText.text(btnTextOld);
+            icon.removeClass();
+            icon.addClass(iconClass);
           });
       })
       .catch(function(error) {
         alert('Export failed with error: ' + error);
-        exportBtnText.nodeValue = btnText;
-        exportIcon.className = iconClass;
+        btnText.text(btnTextOld);
+        icon.removeClass();
+        icon.addClass(iconClass);
       });
+  }
+
+  function showDiv(e) {
+    reportDiv.slideToggle();
+  }
+
+  function showError(text) {
+    errorDiv.text(text);
+
+    if (!$.contains(document.documentElement, errorDiv[0])) {
+      completeDiv.append(errorDiv);
+    }
+  }
+
+  function hideError() {
+    errorDiv.detach();
+  }
+
+  function isValidDate(d) {
+    return d instanceof Date && !isNaN(d);
   }
 
   function getCourseId() {
