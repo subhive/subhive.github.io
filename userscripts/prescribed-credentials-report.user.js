@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Grading Reports Tool
 // @namespace    https://subhive.github.io
-// @version      1.8
+// @version      2.0
 // @description  Export a .csv report of student grades for credentials listed on the page.
 // @author       darren@subtext.com.au
 // @include      https://*.instructure.com/courses/*
@@ -33,7 +33,7 @@
   var startPickerInput;
   var endPickerInput;
   const reportText = ' Grading Reports';
-  const exportText = ' Full Progress Report';
+  const exportText = ' Progress Report';
   const completeText = ' Generate';
   const waitText = ' Please wait...';
   const iconClass = 'icon-stats';
@@ -54,14 +54,14 @@
       exportBtnText = $('<span>' + exportText + '</span>');
       exportBtn.click(createCsv);
       exportIcon = reportIcon.clone();
-      exportBtn.append(exportIcon);
+      // exportBtn.append(exportIcon);
       exportBtn.append(exportBtnText);
 
       completeBtn = $('<button class="btn complete-button">');
       completeBtnText = $('<span>' + completeText + '</span>');
       completeBtn.click(createCsv);
       completeIcon = reportIcon.clone();
-      completeBtn.append(completeIcon);
+      // completeBtn.append(completeIcon);
       completeBtn.append(completeBtnText);
 
       startPickerInput = $('<input type="text" id="startpicker" style="width:80px;vertical-align:baseline;margin-right:5px">');
@@ -71,15 +71,15 @@
       var styledDiv = $('<div style="border:1px solid #C7CDD1;border-radius:3px;padding:10px;background-color:#fff;">');
 
       var exportDiv = $('<div style="border-bottom:1px solid #C7CDD1;padding-bottom:10px;margin-bottom:10px;">');
-      var exportDescription = $('<div style="font-size:11px;padding-bottom:5px;">This is the description</div>');
+      var exportDescription = $('<div style="font-size:.9em;color:#D12B26;padding-bottom:15px;">Reports generated include all hyperlinked <br/>credentials on this page</div><div style="font-size:1em;"><strong>Full Progress Report</strong></div><div style="font-size:.8em;padding-bottom:10px;">Includes all credential statuses</div>');
       exportDiv.append(exportDescription);
       exportDiv.append(exportBtn);
 
       var completeDiv = $('<div>');
       var labelDiv = $('<div>');
-      var completeDescription = $('<div style="font-size:11px;padding-bottom:5px;">This is the description</div>');
-      var startLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">Start</div>');
-      var endLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">End</div>');
+      var completeDescription = $('<div style="font-size:1em;"><strong>Completed Credentials</strong></div><div style="font-size:.8em;padding-bottom:10px;">Includes only completed credentials</div>');
+      var startLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">Start date</div>');
+      var endLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">End date</div>');
       labelDiv.append(startLabel);
       labelDiv.append(endLabel);
       completeDiv.append(completeDescription);
