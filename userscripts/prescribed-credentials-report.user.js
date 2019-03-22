@@ -18,6 +18,7 @@
   'use strict';
 
   var courseId = getCourseId();
+  var homePage;
   var credIds = [];
   var errorDiv;
   var reportDiv;
@@ -40,6 +41,7 @@
   const baseUrl = window.location.protocol + '//' + window.location.host;
 
   if (courseId !== null) {
+    homePage = window.location.href.indexOf('/pages/') === -1;
     getCredentialIds();
 
     if (credIds.length) {
@@ -69,14 +71,18 @@
       var styledDiv = $('<div style="border:1px solid #C7CDD1;border-radius:3px;padding:10px;background-color:#fff;">');
 
       var exportDiv = $('<div style="border-bottom:1px solid #C7CDD1;padding-bottom:10px;margin-bottom:10px;">');
+      var exportDescription = $('<div style="font-size:11px;padding-bottom:5px;">This is the description</div>');
+      exportDiv.append(exportDescription);
       exportDiv.append(exportBtn);
 
       var completeDiv = $('<div>');
       var labelDiv = $('<div>');
+      var completeDescription = $('<div style="font-size:11px;padding-bottom:5px;">This is the description</div>');
       var startLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">Start</div>');
       var endLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">End</div>');
       labelDiv.append(startLabel);
       labelDiv.append(endLabel);
+      completeDiv.append(completeDescription);
       completeDiv.append(labelDiv);
       completeDiv.append(startPickerInput);
       completeDiv.append(endPickerInput);
@@ -127,10 +133,10 @@
         return;
       }
 
-      var start = new Date(+startParts[2], +startParts[1] - 1, +startParts[0]);
-      var end = new Date(+endParts[2], +endParts[1] - 1, +endParts[0]);
+      start = new Date(+startParts[2], +startParts[1] - 1, +startParts[0]);
+      end = new Date(+endParts[2], +endParts[1] - 1, +endParts[0]);
 
-      if (!isValidDate(start) || !isValidDate(start)) {
+      if (!isValidDate(start) || !isValidDate(end)) {
         showError('Invalid dates');
         return;
       }
@@ -139,6 +145,9 @@
         showError('End date must be later than start date');
         return;
       }
+
+      // make end inclusive date
+      end.setDate(end.getDate() + 1);
     }
 
     hideError();
@@ -151,7 +160,6 @@
     icon.addClass(waitClass);
 
     const url = baseUrl + '/api/v1/courses/' + courseId + '/front_page';
-    const timeExp = /[T|Z]/g;
     getAssignmentIds(url)
       .then(function (allIds) {
         var assignments = [];
@@ -181,8 +189,8 @@
 
             if (userSubmissions) {
               userSubmissions.forEach(function (userSubmission) {
-                //if (userSubmission.submissions.length === 0 || userSubmission.submissions[0].user.sis_user_id == null || userIds.indexOf(userSubmission.user_id) !== -1) {
-                if (userSubmission.submissions.length === 0 || userIds.indexOf(userSubmission.user_id) !== -1) {
+                var submissions = userSubmission.submissions;
+                if (submissions.length === 0 || userIds.indexOf(userSubmission.user_id) !== -1) {
                   return;
                 } else {
                   userIds.push(userSubmission.user_id);
@@ -190,12 +198,11 @@
 
                 var userName, userId;
                 assignments.forEach(function (assignment) {
-                  var submissions = userSubmission.submissions;
                   for (var j = 0; j < submissions.length; j++) {
                     var submission = submissions[j];
                     if (submission.assignment_id === assignment.id) {
-                      var submittedAt =  new Date(submission.submitted_at);
-                      if (complete && (submission.grade !== 'complete' || submittedAt > end.toISOString())) {
+                      var submittedAt = new Date(submission.submitted_at);
+                      if (complete && (submission.grade !== 'complete' || submittedAt > end)) {
                         continue;
                       }
 
@@ -213,21 +220,24 @@
                           }
 
                           if (attempt.submitted_at) {
+                            var attemptSubmittedAt = new Date(attempt.submitted_at);
                             if (firstSubmitted === null) {
-                              firstSubmitted = attempt.submitted_at;
-                            } else if (attempt.submitted_at < firstSubmitted) {
-                              attempt.submitted_at < firstSubmitted;
+                              firstSubmitted = attemptSubmittedAt;
+                            } else if (attemptSubmittedAt < firstSubmitted) {
+                              firstSubmitted = attemptSubmittedAt;
                             }
                           }
                         });
                       }
-                      const grade = submission.excused ? 'excused' : submission.grade;
-                      firstSubmitted = firstSubmitted != null ? firstSubmitted.replace(timeExp, ' ') : null;
-                      const lastSubmitted = submission.submitted_at != null ? submission.submitted_at.replace(timeExp, ' ') : null;
+
+                      var options = { timeZone: 'Australia/Melbourne' };
+                      const grade = submission.excused ? 'excused' : (submission.grade != null ? submission.grade : '');
+                      firstSubmitted = firstSubmitted != null ? firstSubmitted.toLocaleString('en-GB', options) : '';
+                      const lastSubmitted = submission.submitted_at != null ? submittedAt.toLocaleString('en-GB', options) : '';
                       const workflowState = submission.workflow_state === 'unsubmitted' ? 'not submitted' : submission.workflow_state;
 
                       if (complete) {
-                        const graded = submission.graded_at != null ? submission.graded_at.replace(timeExp, ' ') : null;
+                        const graded = submission.graded_at != null ? new Date(submission.graded_at).toLocaleString('en-GB', options) : '';
                         data.push(['"' + userId + '"', '"' + userName + '"', '"' + assignment.name + '"', '"' + firstSubmitted + '"', '"' + lastSubmitted + '"', '"' + graded + '"', '"' + attemptsGraded + '"']);
                       } else {
                         data.push(['"' + userId + '"', '"' + userName + '"', '"' + assignment.name + '"', '"' + grade + '"', '"' + workflowState + '"', '"' + firstSubmitted + '"', '"' + lastSubmitted + '"', '"' + assignment.due + '"', '"' + assignment.instructor + '"', '"' + attemptsGraded + '"']);
@@ -306,22 +316,26 @@
     for (var i = 0; i < a.length; i++) {
       const linkMatches = a[i].href.match(linkExp);
       if (linkMatches != null) {
-        var instructor, due;
-        var row = findRow(a[i]);
-        if (row !== null) {
-          var j = 0;
-          var rowMatches;
-          var rowText = row.innerHTML;
-          while (rowMatches = rowExp.exec(rowText)) {
-            if (j == 1) {
-              instructor = rowMatches[1].replace(tagExp, '').replace('&nbsp;', ' ');
+        var instructor = '';
+        var due = '';
+
+        if (!homePage) {
+          var row = findRow(a[i]);
+          if (row !== null) {
+            var j = 0;
+            var rowMatches;
+            var rowText = row.innerHTML;
+            while (rowMatches = rowExp.exec(rowText)) {
+              if (j == 1) {
+                instructor = rowMatches[1].replace(tagExp, '').replace('&nbsp;', ' ');
+              } else if (j == 2) {
+                due = rowMatches[1].replace(tagExp, '');
+              }
+              j++;
             }
-            else if (j == 2) {
-              due = rowMatches[1].replace(tagExp, '');
-            }
-            j++;
           }
         }
+
         credIds.push({id: parseInt(linkMatches[1]), name: a[i].text, instructor: instructor, due: due});
       }
     }
