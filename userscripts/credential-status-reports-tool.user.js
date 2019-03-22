@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Grading Reports Tool
+// @name         Credential Status Reports Tool
 // @namespace    https://subhive.github.io
 // @version      2.0
 // @description  Export a .csv report of student grades for credentials listed on the page.
@@ -32,7 +32,7 @@
   var completeIcon;
   var startPickerInput;
   var endPickerInput;
-  const reportText = ' Grading Reports';
+  const reportText = ' Credential Status Reports';
   const exportText = ' Progress Report';
   const completeText = ' Generate';
   const waitText = ' Please wait...';
