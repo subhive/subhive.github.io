@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Prescribed Credentials Progress Report
+// @name         Grading Reports Tool
 // @namespace    https://subhive.github.io
 // @version      1.8
-// @description  Export a .csv report of student grades for the listed prescribed credentials.
+// @description  Export a .csv report of student grades for credentials listed on the page.
 // @author       darren@subtext.com.au
 // @include      https://*.instructure.com/courses/*
 // @include      https://*.instructure.com/courses/*/pages/*
@@ -32,9 +32,9 @@
   var completeIcon;
   var startPickerInput;
   var endPickerInput;
-  const reportText = ' Reports';
-  const exportText = ' Progress Report';
-  const completeText = ' Grade Report';
+  const reportText = ' Grading Reports';
+  const exportText = ' Full Progress Report';
+  const completeText = ' Generate';
   const waitText = ' Please wait...';
   const iconClass = 'icon-stats';
   const waitClass = 'icon-instructure';
