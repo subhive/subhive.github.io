@@ -38,6 +38,7 @@
   var submittedCheck;
   var notSubmittedCheck;
   var excusedCheck;
+  var gradeHeading;
   const reportText = ' Credential Status Reports';
   const exportText = ' Progress Report';
   const completeText = ' Generate';
@@ -95,12 +96,17 @@
 
       var completeDiv = $('<div>');
       var labelDiv = $('<div>');
-      var completeDescription = $('<div style="font-size:1em;"><strong>Grade Report</strong></div><div style="font-size:.8em;">Include only these grades</div>');
+      gradeHeading = $('<div class="grade-heading" style="font-size:1em;"><strong>Grade Report</strong></div>');
+      var includeDescription = $('<div style="font-size:.8em;">Include only these grades</div>');
       var startLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">Start date</div>');
       var endLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">End date</div>');
       labelDiv.append(startLabel);
       labelDiv.append(endLabel);
-      completeDiv.append(completeDescription);
+      completeDiv.append(gradeHeading);
+      completeDiv.append(labelDiv);
+      completeDiv.append(startPickerInput);
+      completeDiv.append(endPickerInput);
+      completeDiv.append(includeDescription);
 
       var completeCheckWrapper = $('<div class="check-wrapper complete-check-wrapper"><label for="complete-check">Complete</label></div>').prepend(completeCheck);
       var incompleteCheckWrapper = $('<div class="check-wrapper incomplete-check-wrapper"><label for="incomplete-check">Incomplete</label></div>').prepend(incompleteCheck);
@@ -110,17 +116,14 @@
       completeDiv.append(submittedCheckWrapper);
 
       if (notSubmittedCheck) {
-        var optionalCheckHeading = $('<div style="border-top:1px solid #C7CDD1;font-size:.8em;padding-top:10px;margin-top: 10px;">The following options will ignore date range</div>');
+        var optionalCheckHeading = $('<hr style="border-top:1px solid #C7CDD1;width:50%;padding:0;margin:0 auto"><div style="font-size:.8em;padding-top:10px;margin-top:10px;">The following options will ignore date range</div>');
         var notSubmittedCheckWrapper = $('<div class="check-wrapper notsubmitted-check-wrapper"><label for="notsubmitted-check">Not submitted</label></div>').prepend(notSubmittedCheck);
         var excusedCheckWrapper = $('<div class="check-wrapper excused-check-wrapper"><label for="excused-check">Excused</label></div>').prepend(excusedCheck);
         completeDiv.append(optionalCheckHeading);
         completeDiv.append(notSubmittedCheckWrapper);
         completeDiv.append(excusedCheckWrapper);
       }
-      
-      completeDiv.append(labelDiv);
-      completeDiv.append(startPickerInput);
-      completeDiv.append(endPickerInput);
+
       completeDiv.append(completeBtn);
 
       styledDiv.append(description);
@@ -128,7 +131,7 @@
       styledDiv.append(completeDiv);
       reportDiv.append(styledDiv);
 
-      errorDiv = $('<div class="error-text" style="font-size:11px;">');
+      errorDiv = $('<div class="error-text" style="font-size:11px;color:#D12B26;">');
 
       var headerBar = $('.header-bar-right');
       if (headerBar.length > 0) {
@@ -355,7 +358,7 @@
     errorDiv.text(text);
 
     if (!$.contains(document.documentElement, errorDiv[0])) {
-      completeDiv.append(errorDiv);
+      gradeHeading.after(errorDiv);
     }
   }
 
