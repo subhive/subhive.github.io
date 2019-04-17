@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         Credential Status Reports Tool
+// @name         [DEV] Credential Status Reports Tool
 // @namespace    https://subhive.github.io
 // @version      2.0
 // @description  Export a .csv report of student grades for credentials listed on the page.
-// @author       darren@subtext.com.au
+// @author       darren@spacedog.com.au
 // @include      https://*.instructure.com/courses/*
 // @include      https://*.instructure.com/courses/*/pages/*
 // @require     http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
