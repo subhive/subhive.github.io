@@ -57,14 +57,14 @@
       reportIcon = $('<i class="' + iconClass + '">');
       reportBtn.prepend(reportIcon);
 
-      exportBtn = $('<button class="btn export-button">');
+      exportBtn = $('<button class="btn export-button" style="margin-bottom:5px;">');
       exportBtnText = $('<span>' + exportText + '</span>');
       exportBtn.click(createCsv);
       exportIcon = reportIcon.clone();
       // exportBtn.append(exportIcon);
       exportBtn.append(exportBtnText);
 
-      completeBtn = $('<button class="btn complete-button">');
+      completeBtn = $('<button class="btn complete-button" style="margin:5px 0;">');
       completeBtnText = $('<span>' + completeText + '</span>');
       completeBtn.click(createCsv);
       completeIcon = reportIcon.clone();
@@ -116,7 +116,7 @@
       completeDiv.append(submittedCheckWrapper);
 
       if (notSubmittedCheck) {
-        var optionalCheckHeading = $('<hr style="border-top:1px solid #C7CDD1;width:50%;padding:0;margin:0 auto"><div style="font-size:.8em;padding-top:10px;margin-top:10px;">The following options will ignore date range</div>');
+        var optionalCheckHeading = $('<hr style="border-top:1px solid #C7CDD1;width:50%;padding:0;margin:0 auto"><div style="font-size:.8em;padding-top:10px;">The following options will ignore date range</div>');
         var notSubmittedCheckWrapper = $('<div class="check-wrapper notsubmitted-check-wrapper"><label for="notsubmitted-check">Not submitted</label></div>').prepend(notSubmittedCheck);
         var excusedCheckWrapper = $('<div class="check-wrapper excused-check-wrapper"><label for="excused-check">Excused</label></div>').prepend(excusedCheck);
         completeDiv.append(optionalCheckHeading);
@@ -127,7 +127,7 @@
       completeDiv.append(completeBtn);
 
       styledDiv.append(description);
-      styledDiv.append(exportDiv);
+      if (!homePage || isAdmin) styledDiv.append(exportDiv);
       styledDiv.append(completeDiv);
       reportDiv.append(styledDiv);
 
