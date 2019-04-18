@@ -61,13 +61,14 @@
       exportBtnText = $('<span>' + exportText + '</span>');
       exportBtn.click(createCsv);
       exportIcon = reportIcon.clone();
+      exportIcon.attr('class', waitClass);
       // exportBtn.append(exportIcon);
       exportBtn.append(exportBtnText);
 
       completeBtn = $('<button class="btn complete-button" style="margin:5px 0;">');
       completeBtnText = $('<span>' + completeText + '</span>');
       completeBtn.click(createCsv);
-      completeIcon = reportIcon.clone();
+      completeIcon = exportIcon.clone();
       // completeBtn.append(completeIcon);
       completeBtn.append(completeBtnText);
 
@@ -116,7 +117,7 @@
       completeDiv.append(submittedCheckWrapper);
 
       if (notSubmittedCheck) {
-        var optionalCheckHeading = $('<hr style="border-top:1px solid #C7CDD1;width:50%;padding:0;margin:0 auto"><div style="font-size:.8em;padding-top:10px;">The following options will ignore date range</div>');
+        var optionalCheckHeading = $('<div style="font-size:.8em;padding-top:10px;">The following options will ignore date range</div>');
         var notSubmittedCheckWrapper = $('<div class="check-wrapper notsubmitted-check-wrapper"><label for="notsubmitted-check">Not submitted</label></div>').prepend(notSubmittedCheck);
         var excusedCheckWrapper = $('<div class="check-wrapper excused-check-wrapper"><label for="excused-check">Excused</label></div>').prepend(excusedCheck);
         completeDiv.append(optionalCheckHeading);
@@ -202,14 +203,16 @@
 
     hideError();
 
+    var btn = complete ? completeBtn : exportBtn;
     var btnText = complete ? completeBtnText : exportBtnText;
     var icon = complete ? completeIcon : exportIcon;
     var btnTextOld = btnText.text();
 
 
     btnText.text(waitText);
-    icon.removeClass();
-    icon.addClass(waitClass);
+    btn.prepend(icon);
+    //icon.removeClass();
+    //icon.addClass(waitClass);
 
     const url = baseUrl + '/api/v1/courses/' + courseId + '/front_page';
     getAssignmentIds(url)
@@ -338,15 +341,17 @@
             document.body.appendChild(link);
             link.click();
             btnText.text(btnTextOld);
-            icon.removeClass();
-            icon.addClass(iconClass);
+            icon.detach();
+            //icon.removeClass();
+            //icon.addClass(iconClass);
           });
       })
       .catch(function(error) {
         alert('Export failed with error: ' + error);
         btnText.text(btnTextOld);
-        icon.removeClass();
-        icon.addClass(iconClass);
+        icon.detach();
+        //icon.removeClass();
+        //icon.addClass(iconClass);
       });
   }
 
