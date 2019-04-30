@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         Credential Status Reports Tool
 // @namespace    https://subhive.github.io
-// @version      2.0
+// @version      3.0
 // @description  Export a .csv report of student grades for credentials listed on the page.
-// @author       darren@subtext.com.au
+// @author       darren@spacedog.com.au
 // @include      https://*.instructure.com/courses/*
 // @include      https://*.instructure.com/courses/*/pages/*
 // @require     http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
@@ -18,6 +18,7 @@
   'use strict';
 
   var courseId = getCourseId();
+  var isAdmin = false;
   var homePage;
   var credIds = [];
   var errorDiv;
@@ -32,6 +33,12 @@
   var completeIcon;
   var startPickerInput;
   var endPickerInput;
+  var completeCheck;
+  var incompleteCheck;
+  var submittedCheck;
+  var notSubmittedCheck;
+  var excusedCheck;
+  var gradeHeading;
   const reportText = ' Credential Status Reports';
   const exportText = ' Progress Report';
   const completeText = ' Generate';
@@ -50,49 +57,82 @@
       reportIcon = $('<i class="' + iconClass + '">');
       reportBtn.prepend(reportIcon);
 
-      exportBtn = $('<button class="btn export-button">');
+      exportBtn = $('<button class="btn export-button" style="margin-bottom:5px;">');
       exportBtnText = $('<span>' + exportText + '</span>');
       exportBtn.click(createCsv);
       exportIcon = reportIcon.clone();
+      exportIcon.attr('class', waitClass);
       // exportBtn.append(exportIcon);
       exportBtn.append(exportBtnText);
 
-      completeBtn = $('<button class="btn complete-button">');
+      completeBtn = $('<button class="btn complete-button" style="margin:5px 0;">');
       completeBtnText = $('<span>' + completeText + '</span>');
       completeBtn.click(createCsv);
-      completeIcon = reportIcon.clone();
+      completeIcon = exportIcon.clone();
       // completeBtn.append(completeIcon);
       completeBtn.append(completeBtnText);
 
       startPickerInput = $('<input type="text" id="startpicker" style="width:80px;vertical-align:baseline;margin-right:5px">');
       endPickerInput = $('<input type="text" id="endpicker" style="width:80px;vertical-align:baseline;margin-right:5px">');
 
+      completeCheck = $('<input type="checkbox" id="complete-check" name="complete-check" style="margin-right:5px;">');
+      incompleteCheck = $('<input type="checkbox" id="incomplete-check" name="incomplete-check" style="margin-right:5px;">');
+      submittedCheck = $('<input type="checkbox" id="submitted-check" name="submitted-check" style="margin-right:5px;">');
+
+      if (!homePage || isAdmin) {
+        notSubmittedCheck = $('<input type="checkbox" id="notsubmitted-check" name="notsubmitted-check" style="margin-right:5px;">');
+        excusedCheck = $('<input type="checkbox" id="excused-check" name="excused-check" style="margin-right:5px;">');
+      }
+
       reportDiv = $('<div style="display:none;position:absolute;right:0;top:38px;z-index:99">');
       var styledDiv = $('<div style="border:1px solid #C7CDD1;border-radius:3px;padding:10px;background-color:#fff;">');
-
+      var description = $('<div style="font-size:.9em;color:#D12B26;padding-bottom:15px;">Reports generated include all hyperlinked <br/>credentials on this page</div>');
       var exportDiv = $('<div style="border-bottom:1px solid #C7CDD1;padding-bottom:10px;margin-bottom:10px;">');
-      var exportDescription = $('<div style="font-size:.9em;color:#D12B26;padding-bottom:15px;">Reports generated include all hyperlinked <br/>credentials on this page</div><div style="font-size:1em;"><strong>Full Progress Report</strong></div><div style="font-size:.8em;padding-bottom:10px;">Includes all credential statuses</div>');
-      exportDiv.append(exportDescription);
-      exportDiv.append(exportBtn);
+
+      if (!homePage || isAdmin) {
+        var exportHeading = $('<div style="font-size:1em;"><strong>Full Progress Report</strong></div><div style="font-size:.8em;padding-bottom:10px;">Includes all credential statuses</div>');
+        exportDiv.append(exportHeading);
+        exportDiv.append(exportBtn);
+      }
 
       var completeDiv = $('<div>');
       var labelDiv = $('<div>');
-      var completeDescription = $('<div style="font-size:1em;"><strong>Completed Credentials</strong></div><div style="font-size:.8em;padding-bottom:10px;">Includes only completed credentials</div>');
+      gradeHeading = $('<div class="grade-heading" style="font-size:1em;"><strong>Grade Report</strong></div>');
+      var includeDescription = $('<div style="font-size:.8em;">Include only these grades</div>');
       var startLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">Start date</div>');
       var endLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">End date</div>');
       labelDiv.append(startLabel);
       labelDiv.append(endLabel);
-      completeDiv.append(completeDescription);
+      completeDiv.append(gradeHeading);
       completeDiv.append(labelDiv);
       completeDiv.append(startPickerInput);
       completeDiv.append(endPickerInput);
+      completeDiv.append(includeDescription);
+
+      var completeCheckWrapper = $('<div class="check-wrapper complete-check-wrapper"><label for="complete-check">Complete</label></div>').prepend(completeCheck);
+      var incompleteCheckWrapper = $('<div class="check-wrapper incomplete-check-wrapper"><label for="incomplete-check">Incomplete</label></div>').prepend(incompleteCheck);
+      var submittedCheckWrapper = $('<div class="check-wrapper submitted-check-wrapper"><label for="submitted-check">Submitted</label></div>').prepend(submittedCheck);
+      completeDiv.append(completeCheckWrapper);
+      completeDiv.append(incompleteCheckWrapper);
+      completeDiv.append(submittedCheckWrapper);
+
+      if (notSubmittedCheck) {
+        var optionalCheckHeading = $('<div style="font-size:.8em;padding-top:10px;">The following options will ignore date range</div>');
+        var notSubmittedCheckWrapper = $('<div class="check-wrapper notsubmitted-check-wrapper"><label for="notsubmitted-check">Not submitted</label></div>').prepend(notSubmittedCheck);
+        var excusedCheckWrapper = $('<div class="check-wrapper excused-check-wrapper"><label for="excused-check">Excused</label></div>').prepend(excusedCheck);
+        completeDiv.append(optionalCheckHeading);
+        completeDiv.append(notSubmittedCheckWrapper);
+        completeDiv.append(excusedCheckWrapper);
+      }
+
       completeDiv.append(completeBtn);
 
-      styledDiv.append(exportDiv);
+      styledDiv.append(description);
+      if (!homePage || isAdmin) styledDiv.append(exportDiv);
       styledDiv.append(completeDiv);
       reportDiv.append(styledDiv);
 
-      errorDiv = $('<div class="error-text" style="font-size:11px;">');
+      errorDiv = $('<div class="error-text" style="font-size:11px;color:#D12B26;">');
 
       var headerBar = $('.header-bar-right');
       if (headerBar.length > 0) {
@@ -121,50 +161,71 @@
   function createCsv(e) {
     var complete = $(e.delegateTarget).hasClass('complete-button');
 
-    var start = null;
-    var end = null;
+    var start, end, completeChecked, incompleteChecked, submittedChecked, notSubmittedChecked, excusedChecked;
 
     if (complete) {
-      var startParts = startPickerInput.val().split("/");
-      var endParts = endPickerInput.val().split("/");
+      completeChecked = completeCheck.is(':checked');
+      incompleteChecked = incompleteCheck.is(':checked');
+      submittedChecked = submittedCheck.is(':checked');
+      notSubmittedChecked = notSubmittedCheck.is(':checked');
+      excusedChecked = excusedCheck.is(':checked');
 
-      if (startParts.length !== 3 || endParts.length !== 3) {
-        showError('Invalid dates');
+      if (completeChecked || incompleteChecked || submittedChecked) {
+        var startParts = startPickerInput.val().split("/");
+        var endParts = endPickerInput.val().split("/");
+
+        if (startParts.length !== 3 || endParts.length !== 3) {
+          showError('Invalid dates');
+          return;
+        }
+
+        start = new Date(+startParts[2], +startParts[1] - 1, +startParts[0]);
+        end = new Date(+endParts[2], +endParts[1] - 1, +endParts[0]);
+
+        if (!isValidDate(start) || !isValidDate(end)) {
+          showError('Invalid dates');
+          return;
+        }
+
+        if (start > end) {
+          showError('End date must be later than start date');
+          return;
+        }
+
+        // make end inclusive date
+        end.setDate(end.getDate() + 1);
+      }
+      else if (!notSubmittedChecked && !excusedChecked) {
+        showError('At least one option must be selected');
         return;
       }
-
-      start = new Date(+startParts[2], +startParts[1] - 1, +startParts[0]);
-      end = new Date(+endParts[2], +endParts[1] - 1, +endParts[0]);
-
-      if (!isValidDate(start) || !isValidDate(end)) {
-        showError('Invalid dates');
-        return;
-      }
-
-      if (start > end) {
-        showError('End date must be later than start date');
-        return;
-      }
-
-      // make end inclusive date
-      end.setDate(end.getDate() + 1);
     }
 
     hideError();
 
+    var btn = complete ? completeBtn : exportBtn;
     var btnText = complete ? completeBtnText : exportBtnText;
     var icon = complete ? completeIcon : exportIcon;
     var btnTextOld = btnText.text();
+
+
     btnText.text(waitText);
-    icon.removeClass();
-    icon.addClass(waitClass);
+    btn.prepend(icon);
+    //icon.removeClass();
+    //icon.addClass(waitClass);
 
     const url = baseUrl + '/api/v1/courses/' + courseId + '/front_page';
     getAssignmentIds(url)
       .then(function (allIds) {
         var assignments = [];
 
-        var query = complete ? '&workflow_state=graded&submitted_since=' + start.toISOString() : '';
+        var query = '';
+        if (complete && !notSubmittedChecked && !excusedChecked) {
+          query += '&submitted_since=' + start.toISOString();
+          if (!submittedChecked) {
+            query += '&workflow_state=graded';
+          }
+        }
 
         credIds.forEach(function (cred) {
           var prop = getProp(allIds, cred.id);
@@ -179,7 +240,7 @@
           .then(function (userSubmissions) {
             var data = [];
             if (complete) {
-              data.push(["Student ID", "Student name", "Credential", "First submission", "Last submission", "Graded at", "Attempts graded"]);
+              data.push(["Student ID", "Student name", "Credential", "Current grade", "First submission", "Last submission", "Graded at", "Attempts graded"]);
             }
             else {
               data.push(["Student ID", "Student name", "Credential", "Current grade", "Workflow state", "First submission", "Last submission", "Due date", "Instructor", "Attempts graded"]);
@@ -201,9 +262,27 @@
                   for (var j = 0; j < submissions.length; j++) {
                     var submission = submissions[j];
                     if (submission.assignment_id === assignment.id) {
+                      var grade = submission.excused ? 'excused' : (submission.grade != null ? submission.grade : '');
                       var submittedAt = new Date(submission.submitted_at);
-                      if (complete && (submission.grade !== 'complete' || submittedAt > end)) {
-                        continue;
+                      if (complete) {
+                        if (grade === 'excused') {
+                          if (!excusedChecked) continue;
+                        }
+                        else if (submission.workflow_state === 'unsubmitted') {
+                          if (!notSubmittedChecked) continue;
+                          grade = 'not submitted';
+                        }
+                        else {
+                          if (!completeChecked && grade === 'complete') continue;
+                          if (!incompleteChecked && grade === 'incomplete') continue;
+
+                          if (submission.workflow_state === 'submitted' || (submission.workflow_state === 'graded' && grade == '')) {
+                            grade = 'submitted';
+                          }
+
+                          if (!submittedChecked && grade === 'submitted') continue;
+                          if (submittedAt < start || submittedAt > end) continue;
+                        }
                       }
 
                       if (userName == null) {
@@ -231,14 +310,13 @@
                       }
 
                       var options = { timeZone: 'Australia/Melbourne' };
-                      const grade = submission.excused ? 'excused' : (submission.grade != null ? submission.grade : '');
                       firstSubmitted = firstSubmitted != null ? firstSubmitted.toLocaleString('en-GB', options) : '';
                       const lastSubmitted = submission.submitted_at != null ? submittedAt.toLocaleString('en-GB', options) : '';
                       const workflowState = submission.workflow_state === 'unsubmitted' ? 'not submitted' : submission.workflow_state;
 
                       if (complete) {
                         const graded = submission.graded_at != null ? new Date(submission.graded_at).toLocaleString('en-GB', options) : '';
-                        data.push(['"' + userId + '"', '"' + userName + '"', '"' + assignment.name + '"', '"' + firstSubmitted + '"', '"' + lastSubmitted + '"', '"' + graded + '"', '"' + attemptsGraded + '"']);
+                        data.push(['"' + userId + '"', '"' + userName + '"', '"' + assignment.name + '"', '"' + grade + '"', '"' + firstSubmitted + '"', '"' + lastSubmitted + '"', '"' + graded + '"', '"' + attemptsGraded + '"']);
                       } else {
                         data.push(['"' + userId + '"', '"' + userName + '"', '"' + assignment.name + '"', '"' + grade + '"', '"' + workflowState + '"', '"' + firstSubmitted + '"', '"' + lastSubmitted + '"', '"' + assignment.due + '"', '"' + assignment.instructor + '"', '"' + attemptsGraded + '"']);
                       }
@@ -263,15 +341,17 @@
             document.body.appendChild(link);
             link.click();
             btnText.text(btnTextOld);
-            icon.removeClass();
-            icon.addClass(iconClass);
+            icon.detach();
+            //icon.removeClass();
+            //icon.addClass(iconClass);
           });
       })
       .catch(function(error) {
         alert('Export failed with error: ' + error);
         btnText.text(btnTextOld);
-        icon.removeClass();
-        icon.addClass(iconClass);
+        icon.detach();
+        //icon.removeClass();
+        //icon.addClass(iconClass);
       });
   }
 
@@ -283,7 +363,7 @@
     errorDiv.text(text);
 
     if (!$.contains(document.documentElement, errorDiv[0])) {
-      completeDiv.append(errorDiv);
+      gradeHeading.after(errorDiv);
     }
   }
 
