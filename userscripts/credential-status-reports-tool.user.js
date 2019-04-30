@@ -39,6 +39,7 @@
   var notSubmittedCheck;
   var excusedCheck;
   var gradeHeading;
+  var verInfo = $('<span style="font-size:.6em;color:#666666;text-align:right;float:right;margin-top:38px">v3.1</span>');
   const reportText = ' Credential Status Reports';
   const exportText = ' Generate Full Report';
   const completeText = ' Generate Filtered Report';
@@ -73,7 +74,7 @@
       completeBtn.append(completeBtnText);
 
       startPickerInput = $('<input type="text" id="startpicker" style="width:80px;vertical-align:baseline;margin-right:5px">');
-      endPickerInput = $('<input type="text" id="endpicker" style="width:80px;vertical-align:baseline;margin-right:5px">');
+      endPickerInput = $('<input type="text" id="endpicker" style="width:80px;vertical-align:baseline;margin-right:5px;margin-left:10px;">');
 
       completeCheck = $('<input type="checkbox" id="complete-check" name="complete-check" style="margin-right:5px;">');
       incompleteCheck = $('<input type="checkbox" id="incomplete-check" name="incomplete-check" style="margin-right:5px;">');
@@ -89,19 +90,20 @@
       var description = $('<div style="font-size:.9em;color:#bc241c;padding-bottom:20px;"><strong>About:</strong> Generate grading reports to track student progress of<br />all hyperlinked credentials on this page.</div>');
       var exportDiv = $('<div style="border-bottom:1px solid #C7CDD1;padding-bottom:15px;margin-bottom:15px;">');
 
+
       if (!homePage || isAdmin) {
-        var exportHeading = $('<div style="font-size:1em;"><strong>Full Report</strong></div><div style="font-size:.85em;padding-bottom:10px;">Includes all grading statuses and all dates.</div>');
+        var exportHeading = $('<div style="font-size:1em;"><strong>Full Report</strong></div><div style="font-size:.85em;padding-bottom:10px;">Includes all grading statuses across all dates.</div>');
         exportDiv.append(exportHeading);
         exportDiv.append(exportBtn);
       }
 
       var completeDiv = $('<div>');
       var labelDiv = $('<div>');
-      gradeHeading = $('<div class="grade-heading" style="font-size:1em;"><strong>Filtered Report</strong></div><div style="font-size:.85em;padding-bottom:10px;">Includes selected grading statuses between a specified date range.</div>');
+      gradeHeading = $('<div class="grade-heading" style="font-size:1em;padding-bottom:10px;"><strong>Filtered Report</strong><br /><span style="font-size:.85em;">Includes selected grading statuses between a specified date range.</span></div>');
 
-      var includeDescription = $('<div style="font-size:.85em;padding-top:3px;">Included grades:</div>');
-      var startLabel = $('<div style="display:inline-block;width:96px;font-size:.85em;margin-right:5px;">Start date</div>');
-      var endLabel = $('<div style="display:inline-block;width:96px;font-size:.85em;margin-right:5px;">End date</div>');
+      var includeDescription = $('<div style="font-size:.85em;padding-top:3px;">Grade status:<br />(<em>select one or multiple</em>)</div>');
+      var startLabel = $('<div style="display:inline-block;width:96px;font-size:.85em;margin-right:5px;">Start date:</div>');
+      var endLabel = $('<div style="display:inline-block;width:96px;font-size:.85em;margin-right:5px;margin-left:10px;">End date:</div>');
       labelDiv.append(startLabel);
       labelDiv.append(endLabel);
       completeDiv.append(gradeHeading);
@@ -119,21 +121,23 @@
 
       if (notSubmittedCheck) {
         var optionalCheckHeading = $('<div style="font-size:.85em;padding-top:10px;"><em>The following options will ignore the date range:</em></div>');
-        var notSubmittedCheckWrapper = $('<div class="check-wrapper notsubmitted-check-wrapper"><label for="notsubmitted-check">Not submitted</label></div>').prepend(notSubmittedCheck);
-        var excusedCheckWrapper = $('<div class="check-wrapper excused-check-wrapper"><label for="excused-check">Excused</label></div>').prepend(excusedCheck);
-        completeDiv.append(optionalCheckHeading);
+        var notSubmittedCheckWrapper = $('<div class="check-wrapper notsubmitted-check-wrapper"><label for="notsubmitted-check">Not submitted (<em>ignores date range</em>)</label></div>').prepend(notSubmittedCheck);
+        var excusedCheckWrapper = $('<div class="check-wrapper excused-check-wrapper" style="padding-bottom:3px;"><label for="excused-check">Excused (<em>ignores date range</em>)</label></div>').prepend(excusedCheck);
+        // completeDiv.append(optionalCheckHeading);
         completeDiv.append(notSubmittedCheckWrapper);
         completeDiv.append(excusedCheckWrapper);
       }
 
       completeDiv.append(completeBtn);
 
+      completeDiv.append(verInfo);
+
       styledDiv.append(description);
       if (!homePage || isAdmin) styledDiv.append(exportDiv);
       styledDiv.append(completeDiv);
       reportDiv.append(styledDiv);
 
-      errorDiv = $('<div class="error-text" style="font-size:11px;color:#D12B26;">');
+      errorDiv = $('<div class="error-text" style="font-size:.8em;color:#D12B26;">');
 
       var headerBar = $('.header-bar-right');
       if (headerBar.length > 0) {
@@ -197,7 +201,7 @@
         end.setDate(end.getDate() + 1);
       }
       else if (!notSubmittedChecked && !excusedChecked) {
-        showError('At least one option must be selected');
+        showError('At least one grade status must be selected');
         return;
       }
     }
