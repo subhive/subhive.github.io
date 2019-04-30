@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Credential Status Reports Tool
 // @namespace    https://subhive.github.io
-// @version      3.0
+// @version      3.1
 // @description  Export a .csv report of student grades for credentials listed on the page.
 // @author       darren@spacedog.com.au
 // @include      https://*.instructure.com/courses/*
@@ -40,8 +40,8 @@
   var excusedCheck;
   var gradeHeading;
   const reportText = ' Credential Status Reports';
-  const exportText = ' Progress Report';
-  const completeText = ' Generate';
+  const exportText = ' Generate Full Report';
+  const completeText = ' Generate Filtered Report';
   const waitText = ' Please wait...';
   const iconClass = 'icon-stats';
   const waitClass = 'icon-instructure';
@@ -86,21 +86,22 @@
 
       reportDiv = $('<div style="display:none;position:absolute;right:0;top:38px;z-index:99">');
       var styledDiv = $('<div style="border:1px solid #C7CDD1;border-radius:3px;padding:10px;background-color:#fff;">');
-      var description = $('<div style="font-size:.9em;color:#D12B26;padding-bottom:15px;">Reports generated include all hyperlinked <br/>credentials on this page</div>');
-      var exportDiv = $('<div style="border-bottom:1px solid #C7CDD1;padding-bottom:10px;margin-bottom:10px;">');
+      var description = $('<div style="font-size:.9em;color:#bc241c;padding-bottom:20px;"><strong>About:</strong> Generate grading reports to track student progress of<br />all hyperlinked credentials on this page.</div>');
+      var exportDiv = $('<div style="border-bottom:1px solid #C7CDD1;padding-bottom:15px;margin-bottom:15px;">');
 
       if (!homePage || isAdmin) {
-        var exportHeading = $('<div style="font-size:1em;"><strong>Full Progress Report</strong></div><div style="font-size:.8em;padding-bottom:10px;">Includes all credential statuses</div>');
+        var exportHeading = $('<div style="font-size:1em;"><strong>Full Report</strong></div><div style="font-size:.85em;padding-bottom:10px;">Includes all grading statuses and all dates.</div>');
         exportDiv.append(exportHeading);
         exportDiv.append(exportBtn);
       }
 
       var completeDiv = $('<div>');
       var labelDiv = $('<div>');
-      gradeHeading = $('<div class="grade-heading" style="font-size:1em;"><strong>Grade Report</strong></div>');
-      var includeDescription = $('<div style="font-size:.8em;">Include only these grades</div>');
-      var startLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">Start date</div>');
-      var endLabel = $('<div style="display:inline-block;width:96px;font-size:11px;margin-right:5px;">End date</div>');
+      gradeHeading = $('<div class="grade-heading" style="font-size:1em;"><strong>Filtered Report</strong></div><div style="font-size:.85em;padding-bottom:10px;">Includes selected grading statuses between a specified date range.</div>');
+
+      var includeDescription = $('<div style="font-size:.85em;padding-top:3px;">Included grades:</div>');
+      var startLabel = $('<div style="display:inline-block;width:96px;font-size:.85em;margin-right:5px;">Start date</div>');
+      var endLabel = $('<div style="display:inline-block;width:96px;font-size:.85em;margin-right:5px;">End date</div>');
       labelDiv.append(startLabel);
       labelDiv.append(endLabel);
       completeDiv.append(gradeHeading);
@@ -117,7 +118,7 @@
       completeDiv.append(submittedCheckWrapper);
 
       if (notSubmittedCheck) {
-        var optionalCheckHeading = $('<div style="font-size:.8em;padding-top:10px;">The following options will ignore date range</div>');
+        var optionalCheckHeading = $('<div style="font-size:.85em;padding-top:10px;"><em>The following options will ignore the date range:</em></div>');
         var notSubmittedCheckWrapper = $('<div class="check-wrapper notsubmitted-check-wrapper"><label for="notsubmitted-check">Not submitted</label></div>').prepend(notSubmittedCheck);
         var excusedCheckWrapper = $('<div class="check-wrapper excused-check-wrapper"><label for="excused-check">Excused</label></div>').prepend(excusedCheck);
         completeDiv.append(optionalCheckHeading);
