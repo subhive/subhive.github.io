@@ -172,8 +172,8 @@
       completeChecked = completeCheck.is(':checked');
       incompleteChecked = incompleteCheck.is(':checked');
       submittedChecked = submittedCheck.is(':checked');
-      notSubmittedChecked = notSubmittedCheck.is(':checked');
-      excusedChecked = excusedCheck.is(':checked');
+      notSubmittedChecked = notSubmittedCheck && notSubmittedCheck.is(':checked');
+      excusedChecked = excusedCheck && excusedCheck.is(':checked');
 
       if (completeChecked || incompleteChecked || submittedChecked) {
         var startParts = startPickerInput.val().split("/");
