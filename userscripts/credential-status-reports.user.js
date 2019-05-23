@@ -1,17 +1,14 @@
 // ==UserScript==
-// @name         Credential Status Reports Tool
+// @name         [EngPrac] Credential Status Reporting Tool
 // @namespace    https://subhive.github.io
 // @version      3.1
-// @description  Export a .csv report of student grades for credentials listed on the page.
+// @description  Export a .csv report of student grades for credentials listed on the current page.
 // @author       darren@spacedog.com.au
 // @include      https://*.instructure.com/courses/*
 // @include      https://*.instructure.com/courses/*/pages/*
-// @require     http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
-// @require     https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
+// @require      https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // @grant        none
-// ==/UserScript==
-
-
 // ==/UserScript==
 
 (function () {
