@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         [Canvas Tweaks] Wide file browser
+// @name         [Canvas mini-mod] Wide file browser
 // @namespace    http://tampermonkey.net/
 // @version      1.0
 // @description  Make the file browser wider when editing pages.
