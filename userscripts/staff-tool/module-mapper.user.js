@@ -37,7 +37,8 @@
       exportBtnText = document.createTextNode(btnText);
       exportBtn.appendChild(exportIcon);
       exportBtn.appendChild(exportBtnText);
-      var editButtons = document.getElementsByClassName('edit-wiki');
+//      var editButtons = document.getElementsByClassName('edit-wiki');
+      var editButtons = document.getElementsByClassName('report-button'); // dependant on credential status reports tool
       if (editButtons !== null) {
         var editButton = editButtons[0];
         editButton.parentNode.insertBefore(exportBtn, editButton);
