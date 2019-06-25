@@ -5,6 +5,7 @@
 // @namespace    https://github.com/dazweeja/tUUvTQQ0QTnY5OH
 // @author       darren@subtext.com.au
 // @include      https://*.instructure.com/courses/*
+// @exclude      https://*.instructure.com/courses/*/*
 // @grant        none
 // ==/UserScript==
 
