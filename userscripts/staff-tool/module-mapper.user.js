@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Canvas Module Mapper (console display only)
+// @name         [Staff Tool] Canvas Module Mapper (console display only)
 // @namespace    https://github.com/dazweeja/tUUvTQQ0QTnY5OH
 // @version      1.0
 // @description  Generate mapping of assignments to modules in the browser console for use with the Associate browser extension.
