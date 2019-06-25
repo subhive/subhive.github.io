@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         [Canvas mini-mod] Course Navigation Quick Links
-// @namespace    https://subhive.github.io
-// @version      1.1
 // @description  Usability tweaks for Canvas LMS
+// @version      1.0
+// @namespace    https://subhive.github.io
 // @author       kebbott@swin.edu.au
 // @match        https://*.instructure.com/courses/*
 // ==/UserScript==
