@@ -1,8 +1,8 @@
 // ==UserScript==
 // @name         [Staff Tool] Canvas Module Mapper (console display only)
-// @namespace    https://github.com/dazweeja/tUUvTQQ0QTnY5OH
+// @description  Generate mapping of assignments to modules in the browser console for use with the Associate browser extension
 // @version      1.0
-// @description  Generate mapping of assignments to modules in the browser console for use with the Associate browser extension.
+// @namespace    https://github.com/dazweeja/tUUvTQQ0QTnY5OH
 // @author       darren@subtext.com.au
 // @include      https://*.instructure.com/courses/*
 // @grant        none
