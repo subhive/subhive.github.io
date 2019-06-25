@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         [Canvas Tweaks] Course Navigation Quick Links
+// @name         [Canvas mini-mod] Course Navigation Quick Links
 // @namespace    https://subhive.github.io
 // @version      1.1
 // @description  Usability tweaks for Canvas LMS
