@@ -1,5 +1,5 @@
 // ==UserScript==
-// @name         Credential Status Reports Tool
+// @name         [Staff Tool] Credential Status Reports Tool
 // @description  Export a .csv report of student grades for credentials listed on the page.
 // @version      3.1
 // @namespace    https://subhive.github.io
