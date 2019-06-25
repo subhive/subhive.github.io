@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         [Canvas mini-mod] Wide file browser
-// @namespace    http://tampermonkey.net/
+// @description  Make the file browser wider when editing pages and assignments
 // @version      1.0
-// @description  Make the file browser wider when editing pages.
-// @author       You
+// @namespace    https://subhive.github.io
+// @author       kebbott@swin.edu.au
 // @match        https://*.instructure.com/courses/*/*/*/edit
 // @grant        GM_addStyle
 // ==/UserScript==
