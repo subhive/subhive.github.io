@@ -1,9 +1,8 @@
 // ==UserScript==
 // @name         [Canvas mini-mod] Aligned Rubrics
-// @namespace    https://subhive.github.io
-// @version      1.0
-// @updateURL    https://github.com/subhive/eng-prac/raw/master/tampermonkey/canvas%20tweaks/aligned-rubrics.user.js
 // @description  Proper alignment of rubric criteria
+// @version      1.0
+// @namespace    https://subhive.github.io
 // @author       kebbott@swin.edu.au
 // @match        https://*.instructure.com/courses/*/assignments/*
 // @grant        GM_addStyle
