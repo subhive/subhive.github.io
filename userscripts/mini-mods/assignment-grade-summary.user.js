@@ -4,7 +4,8 @@
 // @version      1.0
 // @namespace    https://subhive.github.io
 // @author       kebbott@swin.edu.au based on the work of brian.p.reid@dartmouth.edu
-// @include      https://*.instructure.com/courses/*/assignments/*
+// @include      https://swinburne.instructure.com/courses/10218/assignments/*
+// @include      https://swinburne.instructure.com/courses/17757/assignments/*
 // @grant        none
 // ==/UserScript==
 
