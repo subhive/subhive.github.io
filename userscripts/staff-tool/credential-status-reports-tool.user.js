@@ -17,7 +17,7 @@
 (function () {
   'use strict';
 
-  var courseId = getCourseId();
+  var courseId;
   var isAdmin = false;
   var homePage;
   var credIds = [];
@@ -48,7 +48,9 @@
   const waitClass = 'icon-instructure';
   const baseUrl = window.location.protocol + '//' + window.location.host;
 
-  if (courseId !== null) {
+  $(function() {
+    courseId = getCourseId();
+    if (courseId !== null) {
     homePage = window.location.href.indexOf('/pages/') === -1;
     getCredentialIds();
 
@@ -530,4 +532,5 @@
     }
     return row;
   }
+  });
 })();
