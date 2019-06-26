@@ -39,7 +39,7 @@
   var notSubmittedCheck;
   var excusedCheck;
   var gradeHeading;
-  var verInfo = $('<span style="font-size:.6em;color:#666666;text-align:right;float:right;margin-top:38px">v3.1</span>');
+  var verInfo = $('<span style="font-size:.6em;color:#666666;text-align:right;float:right;margin-top:38px">v3.2</span>');
   const reportText = ' Credential Status Reports';
   const exportText = ' Generate Full Report';
   const completeText = ' Generate Filtered Report';
