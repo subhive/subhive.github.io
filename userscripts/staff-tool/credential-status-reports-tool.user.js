@@ -384,10 +384,16 @@
 
   function getCourseId() {
     var courseId = null;
+    const regExp = /(?:EPCID\-)(\d+)/;
     const assignEl = document.getElementById('assign-status');
     if (assignEl !== null) {
-      const classExp = /(?:EPCID\-)(\d+)/;
-      const matches = assignEl.className.match(classExp);
+      const matches = assignEl.className.match(regExp);
+      if (matches) {
+        courseId = matches[1];
+      }
+    }
+    else if (ENV && ENV.WIKI_PAGE && ENV.WIKI_PAGE.body) {
+      const matches = ENV.WIKI_PAGE.body.match(regExp);
       if (matches) {
         courseId = matches[1];
       }
