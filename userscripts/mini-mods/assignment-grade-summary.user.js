@@ -29,27 +29,24 @@
 
     // Get grades data
     function grades_retrieved(){
-        var grades_count_1 = {}; // count for each type of grade
+        var grades_count_1 = { complete: 0, incomplete: 0, 'Not Submitted': 0}; // count for each type of grade
         $.each(grades_results, function(index, file){ //count the number of each type of grade & change null value to "no submission"
-            if (file.grade === null) {
-                file.grade = "Not Submitted";
-            }
-            if (file.grade in grades_count_1){
+            if (file.user.name.toLowerCase() != 'test student') {
+                if (file.grade === null) {
+                    file.grade = 'Not Submitted';
+                }
                 grades_count_1[file.grade]++;
-            } else {
-                grades_count_1[file.grade] = 1;
             }
-
         });
 
-        var grades_count_2 = {}; // count for each resubmission for grading
+        /*var grades_count_2 = {}; // count for each resubmission for grading
         $.each(resub_results, function(index, file){
            if (file["grade_matches_current_submission"] == false in grades_count_2) {
                 grades_count_2[file["grade_matches_current_submission"]]++;
             } else {
                 grades_count_2[file["grade_matches_current_submission"]] = 0;
             }
-        });
+        });*/
 
 
     var grades_report = '<h2>Grading summary</h2><table cellpadding="2" style="font-size: .95em; text-transform: capitalize">';//added table formatting
