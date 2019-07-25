@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         [Canvas mini-mod] Assignment Grade Summary
 // @description  Embeds a summary of all grades for the currently viewed assignment.
-// @version      1.0
+// @version      2.0
 // @namespace    https://subhive.github.io
 // @author       kebbott@swin.edu.au based on the work of brian.p.reid@dartmouth.edu
 // @include      https://swinburne.instructure.com/courses/10218/assignments/*
