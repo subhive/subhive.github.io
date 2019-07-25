@@ -5,7 +5,7 @@
 // @namespace    https://subhive.github.io
 // @author       kebbott@swin.edu.au
 // @match        https://*.instructure.com/courses/*/*/*/edit
-// @match        https://*.instructure.com/courses/*/files/*
+// @match        https://*.instructure.com/courses/*/files
 // @grant        GM_addStyle
 // ==/UserScript==
 
