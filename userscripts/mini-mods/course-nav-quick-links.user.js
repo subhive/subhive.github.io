@@ -1,10 +1,12 @@
 // ==UserScript==
 // @name         [Canvas mini-mod] Course Navigation Quick Links
 // @description  Usability tweaks for Canvas LMS
-// @version      1.0
+// @version      1.1
 // @namespace    https://subhive.github.io
 // @author       kebbott@swin.edu.au
 // @match        https://*.instructure.com/courses/*
+// @require      http://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js
+// @require      https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js
 // ==/UserScript==
 
 (function() {
@@ -19,9 +21,7 @@
     }
 
 
-
 // COMMON //
-
 // Get course ID from current URL - https://github.com/jamesjonesmath/canvancement
     function getCourseId() {
         var courseId = null;
