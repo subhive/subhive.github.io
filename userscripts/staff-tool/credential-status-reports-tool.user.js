@@ -387,7 +387,6 @@
     }
 
     function getCourseId() {
-      var courseId = null;
       const regExp = /(?:EPCID\-)(\d+)/;
       var assignEl = document.getElementById('assign-status');
       if (assignEl !== null) {
