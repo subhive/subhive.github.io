@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         [Staff Tool] Credential Status Reports Tool
 // @description  Export a .csv report of student grades for credentials listed on the page.
-// @version      3.2
+// @version      3.3
 // @namespace    https://subhive.github.io
 // @author       darren@spacedog.com.au
 // @include      https://*.instructure.com/courses/*
@@ -39,7 +39,7 @@
   var notSubmittedCheck;
   var excusedCheck;
   var gradeHeading;
-  var verInfo = $('<span style="font-size:.6em;color:#666666;text-align:right;float:right;margin-top:38px">v3.2</span>');
+  var verInfo = $('<span style="font-size:.6em;color:#666666;text-align:right;float:right;margin-top:38px">v3.3</span>');
   const reportText = ' Credential Status Reports';
   const exportText = ' Generate Full Report';
   const completeText = ' Generate Filtered Report';
